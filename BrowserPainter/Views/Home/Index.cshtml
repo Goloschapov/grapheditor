@@ -1,0 +1,42 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <base href="/">
+    <title>Amazing Browser Painter</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    
+    @Styles.Render("~/Content/css")
+
+    @if (HttpContext.Current.IsDebuggingEnabled)
+    {
+        <!-- Polyfill(s) for older browsers -->
+        <script src="node_modules/core-js/client/shim.min.js"></script>
+
+        <script src="node_modules/zone.js/dist/zone.js"></script>
+        <script src="node_modules/reflect-metadata/Reflect.js"></script>
+        <script src="node_modules/systemjs/dist/system.src.js"></script>
+        <!-- Configure SystemJS -->
+        <script src="systemjs.config.js"></script>
+    }
+    <script type="text/javascript">
+        $activeCommentBox = null;
+        @if (HttpContext.Current.IsDebuggingEnabled) {
+            @:System.import('app').catch(function (err) { console.error(err); });
+        }
+    </script>
+</head>
+
+<body class="theme-default mode-material">
+    <bp-app>
+        <div class="css-loader loader">
+        </div>
+    </bp-app>
+</body>
+
+</html>

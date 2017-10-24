@@ -1,0 +1,56 @@
+{
+  "project": {
+    "version": "1.0.0-beta.24",
+    "name": "browserpainter"
+  },
+  "apps": [
+    {
+      "root": "",
+      "outDir": "dist",
+      "assets": [
+        "favicon.ico"
+      ],
+      "index": "Views/Home/Index.cshtml",
+      "main": "main.ts",
+      "test": "test.ts",
+      "tsconfig": "tsconfig.json",
+      "prefix": "app",
+      "mobile": false,
+      "styles": [
+      ],
+      "scripts": [
+        "node_modules/d3/d3.min.js",
+        "node_modules/nvd3/build/nv.d3.min.js",
+        "node_modules/core-js/client/shim.min.js",
+        "node_modules/zone.js/dist/zone.js",
+        "node_modules/reflect-metadata/Reflect.js",
+        "node_modules/systemjs/dist/system.src.js",
+        "systemjs.config.js"
+      ],
+      "environments": {
+        "source": "environments/environment.ts",
+        "dev": "environments/environment.ts",
+        "qa": "environments/environment.qa.ts",
+        "prod": "environments/environment.prod.ts"
+      }
+    }
+  ],
+  "addons": [],
+  "packages": [],
+  "defaults": {
+    "styleExt": "css",
+    "prefixInterfaces": false,
+    "inline": {
+      "style": false,
+      "template": false
+    },
+    "spec": {
+      "class": false,
+      "component": true,
+      "directive": true,
+      "module": false,
+      "pipe": true,
+      "service": true
+    }
+  }
+}
