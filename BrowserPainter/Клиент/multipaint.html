@@ -1,0 +1,324 @@
+<html>
+    <head>
+        <title>canvasExample</title>
+        <style>
+            #example {
+                border: 1px #000 solid;
+            }
+        </style>
+        <meta charset="utf-8"/> 
+        <!-- Bootstrap -->
+        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <!-- подключаем  скачанный Fabric.js -->
+        <script src="0.9.15.min.js"></script>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="bootstrap/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <!-- <div class="page-header" style="padding-left: 50px;">
+            <h1>Multi User Paint<small style="padding-left: 30px;">User № <label id="user_number">0</label></small></h1>
+        </div>
+        <div>
+            <label id="status" style="margin-left: 50px;">Нет соединения</label>
+        </div>
+        <div> -->
+            <button type="button" id="cursor" class="btn btn-default btn-lg" style="height: 30px; width: 40px; margin-left: 50px; padding: 0px;">
+                <img src="images/cursor.png" style="height: 80%; width: 60%;">
+            </button>
+            <button type="button" id="brush" class="btn btn-default btn-lg" style="height: 30px; width: 40px; margin-left: 20px; padding: 0px;">
+                <img src="images/brush.png" style="height: 80%; width: 70%;">
+            </button>
+            <button type="button" id="line" class="btn btn-default btn-lg" style="height: 30px; width: 40px; margin-left: 10px; padding: 0px;">
+                <img src="images/line.png" style="height: 80%; width: 80%;">
+            </button>
+            <button type="button" id="rectangle" class="btn btn-default btn-lg" style="height: 30px; width: 40px; margin-left: 10px; padding: 0px;">
+                <img src="images/rect.png" style="height: 80%; width: 80%;">
+            </button>
+            <button type="button" id="circle" class="btn btn-default btn-lg" style="height: 30px; width: 40px; margin-left: 10px; padding: 0px;">
+                <img src="images/circle.png" style="height: 80%; width: 60%;">
+            </button>
+            <button type="button" id="triangle" class="btn btn-default btn-lg" style="height: 30px; width: 40px; margin-left: 10px; padding: 0px;">
+                <img src="images/triangle.png" style="height: 80%; width: 60%;">
+            </button>
+            <button type="button" id="eraser" class="btn btn-default btn-lg" style="height: 30px; width: 40px; margin-left: 10px; padding: 0px;">
+                <img src="images/eraser.png" style="height: 80%; width: 60%;">
+            </button>
+            <button type="button" id="text" class="btn btn-default btn-lg" style="height: 30px; width: 40px; margin-left: 10px; padding: 0px;">
+                <img src="images/text.png" style="height: 80%; width: 60%;">
+            </button>
+            <input type="text" style="width: 100px; height: 25px; padding: 4px;" value="Your text here" id="text_input"></input>
+            <!-- div class="btn-group">
+                <button type="button" class="btn btn-default" id="color_black" style="background-color: black;"></button>
+                <button type="button" class="btn btn-default" id="color_red" style="background-color: red;"></button>
+                <button type="button" class="btn btn-default" id="color_blue" style="background-color: blue;"></button>
+                <button type="button" class="btn btn-default" id="color_green" style="background-color: green;"></button>
+                <button type="button" class="btn btn-default" id="color_yellow" style="background-color: yellow;"></button>
+                <button type="button" class="btn btn-default" id="color_gray" style="background-color: gray;"></button>
+                <button type="button" class="btn btn-default" id="color_white" style="background-color: white;"></button>
+            </div>
+            <input type="text" style="width: 30px; height: 25px; padding: 4px;" value="5" id="width_input"></input>
+            <button type="button" class="btn btn-default" id="apply">Apply</button> -->
+        </div>
+        <!-- <span class="glyphicon glyphicon-pencil"></span> -->
+        <div style="margin-left: 50px; margin-top: 10px;">
+            <canvas height='500' width='800' id='c' style="border: 1px dashed black;"></style>Обновите браузер</canvas>            
+        </div>
+
+
+        <script>
+            var socket = new WebSocket("ws://127.0.0.1:8081/");
+            // создаём "оболочку" вокруг canvas элемента (id="c")
+            var canvas = new fabric.Canvas('c');
+
+            var UserNumber = document.getElementById("user_number");
+            var label = document.getElementById("status");
+            var RectBut=document.getElementById('rectangle');
+            var CircleBut=document.getElementById('circle');
+            var LineBut=document.getElementById('line');
+            var CursorBut=document.getElementById('cursor');
+            var TriangleBut=document.getElementById('triangle');
+            var BrushBut=document.getElementById('brush');
+            var EraserBut=document.getElementById('eraser');
+            var TextBut=document.getElementById('text');
+            var TextInput=document.getElementById('text_input');
+
+            var ColorBlack=document.getElementById('color_black');
+            var ColorRed=document.getElementById('color_red');
+            var ColorBlue=document.getElementById('color_blue');
+            var ColorGreen=document.getElementById('color_green');
+            var ColorYellow=document.getElementById('color_yellow');
+            var ColorGray=document.getElementById('color_gray');
+            var ColorWhite=document.getElementById('color_white');
+
+            var Apply=document.getElementById('apply');
+
+            var brush_status = false;
+            var brush_color = 'black';
+            var brush_size = 5;
+
+            var line_status = false;
+            var line_point = false;
+            var line_point_x = 0;
+            var line_point_y = 0;
+
+            var Info = []; 
+
+
+            window.onload = function ()
+            {
+            }
+
+            socket.onopen = function (event) 
+            {
+                label.innerHTML = "Соединение установлено";
+                socket.send("getBackground");
+            }
+
+            socket.onclose = function (event)
+            {
+                label.innerHTML = "Нет соединения";
+            }
+
+            socket.onmessage = function (event)
+            {
+                if (event.data.split('|')[0] == 'name')
+                {
+                    UserNumber.innerHTML = event.data.split('|')[1];
+                }
+                else
+                {
+                    label.innerHTML = "Синхронизация....";
+                    SetBackground(event.data); 
+                }
+            }
+
+            RectBut.onclick = function () 
+            {
+                if (brush_status)
+                {
+                    brush_status = false;
+                    canvas.isDrawingMode = false;
+                }
+                // создаём прямоугольник
+                var rect = new fabric.Rect({
+                    left: 100,
+                    top: 100,
+                    fill: brush_color,
+                    width: 40,
+                    height: 40
+                });
+                // добавляем прямоугольник, чтобы он отобразился
+                canvas.add(rect);
+                canvas.setActiveObject(rect);
+            } 
+
+            BrushBut.onclick = function () 
+            {
+                brush_status = true;
+                canvas.isDrawingMode = true;
+                canvas.freeDrawingColor = brush_color;
+                freeDrawingCursor = 'default';
+                canvas.freeDrawingLineWidth = brush_size;
+            }    
+
+            CircleBut.onclick = function () 
+            {
+                if (brush_status)
+                {
+                    brush_status = false;
+                    canvas.isDrawingMode = false;
+                }
+                var circle = new fabric.Circle({
+                    radius: 20, 
+                    fill: brush_color, 
+                    left: 100, 
+                    top: 100
+                });
+                canvas.add(circle);
+                canvas.setActiveObject(circle);
+            }
+
+            LineBut.onclick = function ()
+            {
+                if (brush_status)
+                {
+                    brush_status = false;
+                    canvas.isDrawingMode = false;
+                }
+                line_status = true;
+            }
+
+            CursorBut.onclick = function ()
+            {
+                brush_status = false;
+                canvas.isDrawingMode = false;
+                canvas.deactivateAll().renderAll();
+                WS_Send();
+                ////////////////////////////////////////////////////////// ВЫЗВАТЬ ФУНКЦИЮ ОТПРАВКИ КАНВАСА
+            }
+
+            TriangleBut.onclick = function ()
+            {
+                if (brush_status)
+                {
+                    brush_status = false;
+                    canvas.isDrawingMode = false;
+                }
+                var triangle = new fabric.Triangle({
+                    width: 40, 
+                    height: 40, 
+                    fill: brush_color, 
+                    left: 50, 
+                    top: 50
+                });
+                canvas.add(triangle);
+                canvas.setActiveObject(triangle);
+            }
+
+            EraserBut.onclick = function ()
+            {
+                brush_status = true;
+                canvas.isDrawingMode = true;
+                canvas.freeDrawingColor = 'white';
+                freeDrawingCursor = 'default';
+                canvas.freeDrawingLineWidth = brush_size;
+            }
+
+            TextBut.onclick = function ()
+            {
+                if (brush_status)
+                {
+                    brush_status = false;
+                    canvas.isDrawingMode = false;
+                }
+                var text = new fabric.Text(TextInput.value, 
+                { 
+                    left: 100, 
+                    top: 100,
+                    fill: brush_color 
+                });
+                canvas.add(text);
+            }
+
+            ColorBlack.onclick = function () { brush_color = 'black'; canvas.freeDrawingColor = brush_color;}
+            ColorRed.onclick = function () { brush_color = 'red'; canvas.freeDrawingColor = brush_color;}
+            ColorBlue.onclick = function () { brush_color = 'blue'; canvas.freeDrawingColor = brush_color;}
+            ColorGreen.onclick = function () { brush_color = 'green'; canvas.freeDrawingColor = brush_color;}
+            ColorYellow.onclick = function () { brush_color = 'yellow'; canvas.freeDrawingColor = brush_color;}
+            ColorGray.onclick = function () { brush_color = 'gray'; canvas.freeDrawingColor = brush_color;}
+            ColorWhite.onclick = function () { brush_color = 'white'; canvas.freeDrawingColor = brush_color;}
+
+            Apply.onclick = function ()
+            {
+                brush_size = document.getElementById('width_input').value;
+                canvas.freeDrawingLineWidth = brush_size;
+            }
+
+            canvas.on('selection:cleared', function () 
+            {
+                ////////////////////////////////////////////////////////// ВЫЗВАТЬ ФУНКЦИЮ ОТПРАВКИ КАНВАСА
+                canvas.deactivateAll().renderAll();
+                WS_Send();
+            });
+
+            canvas.on('mouse:down', function (options) 
+            {
+                if (line_status)
+                {
+                    console.log('mouse:down');
+                    line_point_x = options.e.clientX - canvas._offset.left;
+                    line_point_y = options.e.clientY - canvas._offset.top;
+                    line_point = true;
+                }
+            });
+
+            canvas.on('mouse:up', function (options) 
+            {
+                if (line_status)
+                {
+                    console.log('mouse:up');
+                    line_point = false;
+                    line_status = false;
+                }
+
+                if (brush_status)
+                {
+                ////////////////////////////////////////////////////////// ВЫЗВАТЬ ФУНКЦИЮ ОТПРАВКИ КАНВАСА
+                canvas.deactivateAll().renderAll();
+                WS_Send();
+                }
+            });
+
+            canvas.on('mouse:move', function (options) 
+            {
+                if (line_status)
+                {
+                    if (line_point)
+                    {
+                        canvas.remove(canvas.getActiveObject());
+                        var line = new fabric.Line([line_point_x, line_point_y, options.e.clientX - canvas._offset.left, options.e.clientY - canvas._offset.top], 
+                        { 
+                            fill: brush_color
+                        });
+                        canvas.add(line);
+                        canvas.setActiveObject(line);
+                    }
+                }
+            });
+
+            function WS_Send()
+            {
+                label.innerHTML = "Синхронизация....";
+                socket.send(canvas.toDataURL());
+            }
+
+            function SetBackground (data)
+            {
+                canvas.clear();
+                canvas.setBackgroundImage(data, canvas.renderAll.bind(canvas));
+                label.innerHTML = "Синхронизировано";
+            }
+
+        </script>
+    </body>
+</html>

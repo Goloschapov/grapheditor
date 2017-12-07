@@ -1,0 +1,10 @@
+D:\Design2017\VS Исходники\MultiUserPaint\MultiUserPaint\bin\Debug\MultiUserPaint.exe.config
+D:\Design2017\VS Исходники\MultiUserPaint\MultiUserPaint\bin\Debug\MultiUserPaint.exe
+D:\Design2017\VS Исходники\MultiUserPaint\MultiUserPaint\bin\Debug\MultiUserPaint.pdb
+D:\Design2017\VS Исходники\MultiUserPaint\MultiUserPaint\bin\Debug\Fleck.dll
+D:\Design2017\VS Исходники\MultiUserPaint\MultiUserPaint\obj\Debug\MultiUserPaint.csprojResolveAssemblyReference.cache
+D:\Design2017\VS Исходники\MultiUserPaint\MultiUserPaint\obj\Debug\MultiUserPaint.exe
+D:\Design2017\VS Исходники\MultiUserPaint\MultiUserPaint\obj\Debug\MultiUserPaint.pdb
+D:\Учеба\.Новый семестр\Чичерина ПОМПиСЦОС\MultiUserPaint - копия\MultiUserPaint\bin\Debug\MultiUserPaint.exe.config
+D:\Учеба\.Новый семестр\Чичерина ПОМПиСЦОС\MultiUserPaint - копия\MultiUserPaint\obj\Debug\MultiUserPaint.exe
+D:\Учеба\.Новый семестр\Чичерина ПОМПиСЦОС\MultiUserPaint - копия\MultiUserPaint\obj\Debug\MultiUserPaint.pdb
